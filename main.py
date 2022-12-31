@@ -142,7 +142,7 @@ if __name__ == '__main__':
     log_folder = 'logs/' + configs['dataset_params']['pc_dataset_type']
     tb_logger = pl_loggers.TensorBoardLogger(log_folder, name=configs.log_dir, default_hp_metric=False)
     os.makedirs(f'{log_folder}/{configs.log_dir}', exist_ok=True)
-    profiler = SimpleProfiler(output_filename=f'{log_folder}/{configs.log_dir}/profiler.txt')
+    profiler = SimpleProfiler(f'{log_folder}/{configs.log_dir}/profiler.txt')
     np.set_printoptions(precision=4, suppress=True)
 
     # save the backup files
