@@ -7,7 +7,7 @@ import torch.nn.functional as F
 from network.basic_block import Lovasz_loss
 from network.spvcnn import get_model as SPVCNN
 from network.base_model import LightningBaseModel
-from network.basic_block import ResNetFCN
+from network.basic_block import ResNextFCN
 
 class xModalKD(nn.Module):
     def __init__(self,config):
@@ -151,7 +151,7 @@ class get_model(LightningBaseModel):
 
         self.model_3d = SPVCNN(config)
         if not self.baseline_only:
-            self.model_2d = ResNetFCN(
+            self.model_2d = ResNextFCN(
                 backbone=config.model_params.backbone_2d,
                 pretrained=config.model_params.pretrained2d,
                 config=config
