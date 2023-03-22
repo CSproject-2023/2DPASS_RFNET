@@ -3,11 +3,19 @@ import torch_scatter
 import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
+from tqdm import tqdm
 
 from network.basic_block import Lovasz_loss
 from network.spvcnn import get_model as SPVCNN
 from network.base_model import LightningBaseModel
 from network.basic_block import ResNextFCN
+from builder import data_builder, model_builder, loss_builder
+from config.config import load_config_data
+from utils.load_save_util import load_checkpoint
+
+import warnings
+
+warnings.filterwarnings("ignore")
 
 class xModalKD(nn.Module):
     def __init__(self,config):
@@ -149,7 +157,41 @@ class get_model(LightningBaseModel):
         self.scale_list = config.model_params.scale_list
         self.num_scales = len(self.scale_list)
 
-        self.model_3d = SPVCNN(config)
+        pytorch_device = torch.device('cuda:0')
+
+        config_path = args.config_path
+
+        configs = load_config_data(config_path)
+
+        dataset_config = configs['dataset_params']
+        train_dataloader_config = configs['train_data_loader']
+        val_dataloader_config = configs['val_data_loader']
+
+        val_batch_size = val_dataloader_config['batch_size']
+        train_batch_size = train_dataloader_config['batch_size']
+
+        model_config = configs['model_params']
+        train_hypers = configs['train_params']
+
+        grid_size = model_config['output_shape']
+        num_class = model_config['num_class']
+        ignore_label = dataset_config['ignore_label']
+
+        model_load_path = train_hypers['model_load_path']
+        model_save_path = train_hypers['model_save_path']
+        wd = train_hypers['weight_decay']      # weight decay
+        amp = train_hypers['mixed_fp16']
+        SemKITTI_label_name = get_SemKITTI_label_name(dataset_config["label_mapping"])
+        unique_label = np.asarray(sorted(list(SemKITTI_label_name.keys())))[1:] - 1
+        unique_label_str = [SemKITTI_label_name[x] for x in unique_label + 1]
+
+        self.model_3d = model_builder.build(model_config)
+
+        if os.path.exists(model_load_path):
+        my_model = load_checkpoint(model_load_path, my_model)
+
+        my_model.to(pytorch_device)
+        
         if not self.baseline_only:
             self.model_2d = ResNextFCN(
                 backbone=config.model_params.backbone_2d,
