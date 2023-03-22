@@ -139,7 +139,7 @@ class Lovasz_loss(nn.Module):
 
 class ResNextFCN(nn.Module):
     def __init__(self, backbone="resnext34", pretrained=True, config=None):
-        super(ResNetFCN, self).__init__()
+        super(ResNextFCN, self).__init__()
 
         if backbone == "resnext34":
             net = torch.hub.load('pytorch/vision:v0.10.0', 'resnext50_32x4d', pretrained=True)

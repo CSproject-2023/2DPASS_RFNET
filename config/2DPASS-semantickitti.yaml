@@ -19,7 +19,7 @@ model_params:
 
   hiden_size: 64
   num_classes: 20
-  backbone_2d: resnet34
+  backbone_2d: resnext34
   pretrained2d: False
 
 ###################
