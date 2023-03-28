@@ -159,24 +159,24 @@ class ResNextFCN(nn.Module):
         # Decoder
 
         self.deconv_layer1 = nn.Sequential(
-            nn.Conv2d(64, self.hiden_size, kernel_size=7, stride=1, padding=3, bias=False),
+            nn.Conv2d(256, self.hiden_size, kernel_size=7, stride=1, padding=3, bias=False),
             nn.ReLU(inplace=True),
             nn.UpsamplingNearest2d(scale_factor=4),
         )
         self.deconv_layer2 = nn.Sequential(
-            nn.Conv2d(128, self.hiden_size, kernel_size=7, stride=1, padding=3, bias=False),
+            nn.Conv2d(512, self.hiden_size, kernel_size=7, stride=1, padding=3, bias=False),
             nn.ReLU(inplace=True),
             nn.UpsamplingNearest2d(scale_factor=8),
         )
         self.deconv_layer3 = nn.Sequential(
-            nn.Conv2d(256, 64, kernel_size=7, stride=1, padding=3, bias=False),
+            nn.Conv2d(1024, 64, kernel_size=7, stride=1, padding=3, bias=False),
             nn.ReLU(inplace=True),
             nn.ConvTranspose2d(64, self.hiden_size, kernel_size=3, stride=2, padding=1, dilation=1, output_padding=1),
             nn.ReLU(inplace=True),
             nn.UpsamplingNearest2d(scale_factor=8),
         )
         self.deconv_layer4 = nn.Sequential(
-            nn.Conv2d(512, 64, kernel_size=7, stride=1, padding=3, bias=False),
+            nn.Conv2d(2048, 64, kernel_size=7, stride=1, padding=3, bias=False),
             nn.ReLU(inplace=True),
             nn.ConvTranspose2d(64, 64, kernel_size=3, stride=2, padding=1, dilation=1, output_padding=1),
             nn.ReLU(inplace=True),
