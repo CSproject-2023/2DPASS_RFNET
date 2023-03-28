@@ -466,9 +466,9 @@ def collate_fn_default(data):
     point2img_index = [torch.from_numpy(d['point2img_index']).long() for d in data]
     path = [d['root'] for d in data]
 
-    # img = [torch.from_numpy(d['img']) for d in data]
-    # img_indices = [d['img_indices'] for d in data]
-    # img_label = [torch.from_numpy(d['img_label']) for d in data]
+    img = [torch.from_numpy(d['img']) for d in data]
+    img_indices = [d['img_indices'] for d in data]
+    img_label = [torch.from_numpy(d['img_label']) for d in data]
 
     b_idx = []
     for i in range(batch_size):
@@ -487,8 +487,8 @@ def collate_fn_default(data):
         'origin_len': origin_len,
         'indices': torch.cat(ref_indices).long(),
         'point2img_index': point2img_index,
-        # 'img': torch.stack(img, 0).permute(0, 3, 1, 2),
-        # 'img_indices': img_indices,
-        # 'img_label': torch.cat(img_label, 0).squeeze(1).long(),
+        'img': torch.stack(img, 0).permute(0, 3, 1, 2),
+        'img_indices': img_indices,
+        'img_label': torch.cat(img_label, 0).squeeze(1).long(),
         'path': path,
     }
