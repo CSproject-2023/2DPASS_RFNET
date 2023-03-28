@@ -115,8 +115,9 @@ class SemanticKITTI(data.Dataset):
                 annotated_data[annotated_data == -1] = self.config['dataset_params']['ignore_label']
 
         image_file = self.im_idx[index].replace('velodyne', 'image_2').replace('.bin', '.png')
-        image =Image.open(image_file)
-        # image = 0 
+        image =np.asarray(Image.open(image_file))
+        #image = 0 
+
 
         proj_matrix = self.proj_matrix[int(self.im_idx[index][-22:-20])]
 
@@ -281,6 +282,7 @@ class nuScenes(data.Dataset):
         data_dict = {}
         data_dict['xyz'] = pointcloud[:, :3]
         data_dict['img'] = image
+        data_dict['img1'] = image
         data_dict['calib_infos'] = calib_infos
         data_dict['labels'] = sem_label.astype(np.uint8)
         data_dict['signal'] = pointcloud[:, 3:4]

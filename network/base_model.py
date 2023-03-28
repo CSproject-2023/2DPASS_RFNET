@@ -96,6 +96,7 @@ class LightningBaseModel(pl.LightningModule):
 
     def forward(self, data):
         pass
+        #return thing 
 
     def training_step(self, data_dict, batch_idx):
         data_dict = self.forward(data_dict)

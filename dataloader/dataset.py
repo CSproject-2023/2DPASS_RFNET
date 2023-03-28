@@ -96,7 +96,7 @@ class point_image_dataset_semkitti(data.Dataset):
 
         return keep_ind
 
-    def __getitem__(self, index):
+    def _getitem_(self, index):
         'Generates one sample of data'
         data, root = self.point_cloud_dataset[index]
 
@@ -135,7 +135,7 @@ class point_image_dataset_semkitti(data.Dataset):
                 ref_index[drop_idx] = ref_index[0]
 
         # load 2D data
-        # image = data['img']
+        image = data['img']
         proj_matrix = data['proj_matrix']
 
         # project points into image
@@ -143,12 +143,12 @@ class point_image_dataset_semkitti(data.Dataset):
         points_hcoords = np.concatenate([xyz[keep_idx], np.ones([keep_idx.sum(), 1], dtype=np.float32)], axis=1)
         img_points = (proj_matrix @ points_hcoords.T).T
         img_points = img_points[:, :2] / np.expand_dims(img_points[:, 2], axis=1)  # scale 2D points
-        # keep_idx_img_pts = self.select_points_in_frustum(img_points, 0, 0, *image.size)
-        # keep_idx[keep_idx] = keep_idx_img_pts
+        keep_idx_img_pts = self.select_points_in_frustum(img_points, 0, 0, *image.size)
+        keep_idx[keep_idx] = keep_idx_img_pts
 
         # fliplr so that indexing is row, col and not col, row
-        # img_points = np.fliplr(img_points)
-        # points_img = img_points[keep_idx_img_pts]
+        img_points = np.fliplr(img_points)
+        points_img = img_points[keep_idx_img_pts]
 
         ### 3D Augmentation ###
         # random data augmentation by rotation
@@ -185,48 +185,48 @@ class point_image_dataset_semkitti(data.Dataset):
         feat = np.concatenate((xyz, sig), axis=1)
 
         ### 2D Augmentation ###
-        # if self.bottom_crop:
-        #     # self.bottom_crop is a tuple (crop_width, crop_height)
-        #     left = int(np.random.rand() * (image.size[0] + 1 - self.bottom_crop[0]))
-        #     right = left + self.bottom_crop[0]
-        #     top = image.size[1] - self.bottom_crop[1]
-        #     bottom = image.size[1]
+        if self.bottom_crop:
+            # self.bottom_crop is a tuple (crop_width, crop_height)
+            left = int(np.random.rand() * (image.size[0] + 1 - self.bottom_crop[0]))
+            right = left + self.bottom_crop[0]
+            top = image.size[1] - self.bottom_crop[1]
+            bottom = image.size[1]
 
-        #     # update image points
-        #     keep_idx = points_img[:, 0] >= top
-        #     keep_idx = np.logical_and(keep_idx, points_img[:, 0] < bottom)
-        #     keep_idx = np.logical_and(keep_idx, points_img[:, 1] >= left)
-        #     keep_idx = np.logical_and(keep_idx, points_img[:, 1] < right)
+            # update image points
+            keep_idx = points_img[:, 0] >= top
+            keep_idx = np.logical_and(keep_idx, points_img[:, 0] < bottom)
+            keep_idx = np.logical_and(keep_idx, points_img[:, 1] >= left)
+            keep_idx = np.logical_and(keep_idx, points_img[:, 1] < right)
 
-        #     # crop image
-        #     image = image.crop((left, top, right, bottom))
-        #     points_img = points_img[keep_idx]
-        #     points_img[:, 0] -= top
-        #     points_img[:, 1] -= left
+            # crop image
+            image = image.crop((left, top, right, bottom))
+            points_img = points_img[keep_idx]
+            points_img[:, 0] -= top
+            points_img[:, 1] -= left
 
-        #     img_label = img_label[keep_idx]
-        #     point2img_index = point2img_index[keep_idx]
+            img_label = img_label[keep_idx]
+            point2img_index = point2img_index[keep_idx]
 
-        # img_indices = points_img.astype(np.int64)
+        img_indices = points_img.astype(np.int64)
 
-        # # 2D augmentation
-        # if self.color_jitter is not None:
-        #     image = self.color_jitter(image)
+        # 2D augmentation
+        if self.color_jitter is not None:
+            image = self.color_jitter(image)
 
-        # # PIL to numpy
-        # image = np.array(image, dtype=np.float32, copy=False) / 255.
+        # PIL to numpy
+        image = np.array(image, dtype=np.float32, copy=False) / 255.
 
-        # # 2D augmentation
-        # if np.random.rand() < self.flip2d:
-        #     image = np.ascontiguousarray(np.fliplr(image))
-        #     img_indices[:, 1] = image.shape[1] - 1 - img_indices[:, 1]
+        # 2D augmentation
+        if np.random.rand() < self.flip2d:
+            image = np.ascontiguousarray(np.fliplr(image))
+            img_indices[:, 1] = image.shape[1] - 1 - img_indices[:, 1]
 
-        # # normalize image
-        # if self.image_normalizer:
-        #     mean, std = self.image_normalizer
-        #     mean = np.asarray(mean, dtype=np.float32)
-        #     std = np.asarray(std, dtype=np.float32)
-        #     image = (image - mean) / std
+        # normalize image
+        if self.image_normalizer:
+            mean, std = self.image_normalizer
+            mean = np.asarray(mean, dtype=np.float32)
+            std = np.asarray(std, dtype=np.float32)
+            image = (image - mean) / std
 
         data_dict = {}
         data_dict['point_feat'] = feat
@@ -239,8 +239,8 @@ class point_image_dataset_semkitti(data.Dataset):
         data_dict['origin_len'] = origin_len
         data_dict['root'] = root
 
-        # data_dict['img'] = image
-        # data_dict['img_indices'] = img_indices
+        data_dict['img'] = image
+        data_dict['img_indices'] = img_indices
         data_dict['img_label'] = img_label
         data_dict['point2img_index'] = point2img_index
 
