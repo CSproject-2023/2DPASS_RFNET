@@ -115,7 +115,7 @@ class SemanticKITTI(data.Dataset):
                 annotated_data[annotated_data == -1] = self.config['dataset_params']['ignore_label']
 
         image_file = self.im_idx[index].replace('velodyne', 'image_2').replace('.bin', '.png')
-        image =np.asarray(Image.open(image_file))
+        image =Image.open(image_file)
         #image = 0 
 
 
