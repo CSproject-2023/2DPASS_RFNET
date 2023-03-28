@@ -96,7 +96,7 @@ class point_image_dataset_semkitti(data.Dataset):
 
         return keep_ind
 
-    def _getitem_(self, index):
+    def __getitem__(self, index):
         'Generates one sample of data'
         data, root = self.point_cloud_dataset[index]
 
