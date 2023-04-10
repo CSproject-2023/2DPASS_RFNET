@@ -138,7 +138,14 @@ class point_image_dataset_semkitti(data.Dataset):
         # load 2D data
         image = data['img']
         depth= data['depth']
-        depth = Image.fromarray(np.uint8(cm.gist_earth(depth)*255))
+        depth=np.reshape(depth, (370, 1226,1))
+        depth1=np.concatenate((depth, depth), axis=2)
+        depth=np.concatenate((depth, depth1), axis=2)
+        
+        depth = depth.astype(np.uint8)
+        depth = Image.fromarray(depth)
+
+
         proj_matrix = data['proj_matrix']
 
         # project points into image
@@ -203,7 +210,7 @@ class point_image_dataset_semkitti(data.Dataset):
 
             # crop image
             image = image.crop((left, top, right, bottom))
-            depth=depth[]
+            depth=depth.crop((left, top, right, bottom))
             points_img = points_img[keep_idx]
             points_img[:, 0] -= top
             points_img[:, 1] -= left
