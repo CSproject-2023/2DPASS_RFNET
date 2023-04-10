@@ -136,6 +136,7 @@ class point_image_dataset_semkitti(data.Dataset):
 
         # load 2D data
         image = data['img']
+        depth= data['depth']
         proj_matrix = data['proj_matrix']
 
         # project points into image

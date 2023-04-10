@@ -116,6 +116,7 @@ class SemanticKITTI(data.Dataset):
                 annotated_data -= 1
                 annotated_data[annotated_data == -1] = self.config['dataset_params']['ignore_label']
 
+        
         image_file = self.im_idx[index].replace('velodyne', 'image_2').replace('.bin', '.png')
         image =Image.open(image_file)
 
@@ -128,10 +129,12 @@ class SemanticKITTI(data.Dataset):
         '''
 
         image_file_left = self.im_idx[index].replace('velodyne', 'image_3').replace('.bin', '.png')
-        image_left =Image.open(image_file)
+        
+        image_left =Image.open(image_file_left)
         
         imageL = np.asarray(image_left,dtype=np.uint8)
         imageLL=cv.cvtColor(imageL, cv.COLOR_BGR2GRAY)
+
         stereo = cv.StereoBM_create(numDisparities=16, blockSize=15)
         disparity = stereo.compute(imageRR,imageLL)
         depth = 1/disparity
@@ -140,7 +143,7 @@ class SemanticKITTI(data.Dataset):
         # print("#"*100)
         # print(image.shape)
 
-        
+
         #image = 0 
 
 
@@ -155,7 +158,7 @@ class SemanticKITTI(data.Dataset):
         data_dict['img'] = image
         data_dict['proj_matrix'] = proj_matrix
         
-        #data_dict['depth'] = depth
+        data_dict['depth'] = depth
 
         return data_dict, self.im_idx[index]
 
