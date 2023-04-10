@@ -4,13 +4,11 @@ Task-specific Datasets
 import torch
 import numpy as np
 from matplotlib import cm
-
 from PIL import Image
 from torch.utils import data
 from torchvision import transforms as T
 from pyquaternion import Quaternion
 from nuscenes.utils.geometry_utils import view_points
-
 REGISTERED_DATASET_CLASSES = {}
 REGISTERED_COLATE_CLASSES = {}
 
@@ -250,6 +248,18 @@ class point_image_dataset_semkitti(data.Dataset):
             std = np.asarray(std, dtype=np.float32)
             image = (image - mean) / std
             depth = (depth - mean) / std
+
+        depth=depth[:,:,1]
+        depth=np.reshape(depth, (320, 480,1))
+        # print("&"*100)
+        # print("depth")
+        # print(depth.shape)
+        # print("image")
+        # print(image.shape)
+
+        image=np.concatenate((image, depth), axis=2)
+        
+
         data_dict = {}
         data_dict['point_feat'] = feat
         data_dict['point_label'] = labels
