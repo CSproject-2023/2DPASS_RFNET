@@ -68,6 +68,7 @@ class point_image_dataset_semkitti(data.Dataset):
         self.bottom_crop = config['dataset_params']['bottom_crop']
         color_jitter = config['dataset_params']['color_jitter']
         self.color_jitter = T.ColorJitter(*color_jitter) if color_jitter else None
+        self.depth_jitter = T.ColorJitter(*color_jitter) if color_jitter else None
         self.flip2d = config['dataset_params']['flip2d']
         self.image_normalizer = config['dataset_params']['image_normalizer']
 
@@ -137,15 +138,19 @@ class point_image_dataset_semkitti(data.Dataset):
 
         # load 2D data
         image = data['img']
-        depth= data['depth']
+        depth=data['depth']
+        
         depth=np.reshape(depth, (370, 1226,1))
         depth1=np.concatenate((depth, depth), axis=2)
         depth=np.concatenate((depth, depth1), axis=2)
         
         depth = depth.astype(np.uint8)
         depth = Image.fromarray(depth)
+        
 
-
+        # print("*"*100)
+        
+        # print(depth)
         proj_matrix = data['proj_matrix']
 
         # project points into image
@@ -153,6 +158,9 @@ class point_image_dataset_semkitti(data.Dataset):
         points_hcoords = np.concatenate([xyz[keep_idx], np.ones([keep_idx.sum(), 1], dtype=np.float32)], axis=1)
         img_points = (proj_matrix @ points_hcoords.T).T
         img_points = img_points[:, :2] / np.expand_dims(img_points[:, 2], axis=1)  # scale 2D points
+        #print(image.size)
+        
+
         keep_idx_img_pts = self.select_points_in_frustum(img_points, 0, 0, *image.size)
         keep_idx[keep_idx] = keep_idx_img_pts
 
@@ -210,7 +218,8 @@ class point_image_dataset_semkitti(data.Dataset):
 
             # crop image
             image = image.crop((left, top, right, bottom))
-            depth=depth.crop((left, top, right, bottom))
+            depth = depth.crop((left, top, right, bottom))
+
             points_img = points_img[keep_idx]
             points_img[:, 0] -= top
             points_img[:, 1] -= left
@@ -223,14 +232,16 @@ class point_image_dataset_semkitti(data.Dataset):
         # 2D augmentation
         if self.color_jitter is not None:
             image = self.color_jitter(image)
+            depth= self.color_jitter(depth)
 
         # PIL to numpy
         image = np.array(image, dtype=np.float32, copy=False) / 255.
-
+        depth = np.array(depth, dtype=np.float32, copy=False) / 255.
         # 2D augmentation
         if np.random.rand() < self.flip2d:
             image = np.ascontiguousarray(np.fliplr(image))
             img_indices[:, 1] = image.shape[1] - 1 - img_indices[:, 1]
+            depth = np.ascontiguousarray(np.fliplr(depth))
 
         # normalize image
         if self.image_normalizer:
@@ -238,7 +249,7 @@ class point_image_dataset_semkitti(data.Dataset):
             mean = np.asarray(mean, dtype=np.float32)
             std = np.asarray(std, dtype=np.float32)
             image = (image - mean) / std
-
+            depth = (depth - mean) / std
         data_dict = {}
         data_dict['point_feat'] = feat
         data_dict['point_label'] = labels
@@ -251,6 +262,7 @@ class point_image_dataset_semkitti(data.Dataset):
         data_dict['root'] = root
 
         data_dict['img'] = image
+        data_dict['depth'] = depth
         data_dict['img_indices'] = img_indices
         data_dict['img_label'] = img_label
         data_dict['point2img_index'] = point2img_index
