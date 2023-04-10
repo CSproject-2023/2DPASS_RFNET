@@ -146,8 +146,8 @@ class ResNextFCN(nn.Module):
         else:
             raise NotImplementedError("invalid backbone: {}".format(backbone))
         self.hiden_size = config['model_params']['hiden_size']
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
-        self.conv1.weight.data = net.conv1.weight.data
+        self.conv1 = nn.Conv2d(4, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+        #self.conv1.weight.data = net.conv1.weight.data
         self.bn1 = net.bn1
         self.relu = net.relu
         self.maxpool = net.maxpool
