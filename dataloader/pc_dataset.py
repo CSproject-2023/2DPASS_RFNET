@@ -6,6 +6,8 @@ from PIL import Image
 from torch.utils import data
 from pathlib import Path
 from nuscenes.utils import splits
+import cv2 as cv
+
 
 REGISTERED_PC_DATASET_CLASSES = {}
 
@@ -116,6 +118,15 @@ class SemanticKITTI(data.Dataset):
 
         image_file = self.im_idx[index].replace('velodyne', 'image_2').replace('.bin', '.png')
         image =Image.open(image_file)
+
+        image_file_left = self.im_idx[index].replace('velodyne', 'image_3').replace('.bin', '.png')
+        image_left =Image.open(image_file)
+        stereo = cv.StereoBM_create(numDisparities=16, blockSize=15)
+        disparity = stereo.compute(image,image_left)
+        depth = 1/disparity
+
+        image=np.concatenate((image, depth), axis=1)
+
         #image = 0 
 
 
@@ -129,6 +140,8 @@ class SemanticKITTI(data.Dataset):
         data_dict['origin_len'] = origin_len
         data_dict['img'] = image
         data_dict['proj_matrix'] = proj_matrix
+        
+        #data_dict['depth'] = depth
 
         return data_dict, self.im_idx[index]
 
@@ -282,7 +295,7 @@ class nuScenes(data.Dataset):
         data_dict = {}
         data_dict['xyz'] = pointcloud[:, :3]
         data_dict['img'] = image
-        data_dict['img1'] = image
+        #ata_dict['img1'] = image
         data_dict['calib_infos'] = calib_infos
         data_dict['labels'] = sem_label.astype(np.uint8)
         data_dict['signal'] = pointcloud[:, 3:4]
