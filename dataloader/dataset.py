@@ -3,6 +3,7 @@ Task-specific Datasets
 """
 import torch
 import numpy as np
+from matplotlib import cm
 
 from PIL import Image
 from torch.utils import data
@@ -137,6 +138,7 @@ class point_image_dataset_semkitti(data.Dataset):
         # load 2D data
         image = data['img']
         depth= data['depth']
+        depth = Image.fromarray(np.uint8(cm.gist_earth(depth)*255))
         proj_matrix = data['proj_matrix']
 
         # project points into image
@@ -201,6 +203,7 @@ class point_image_dataset_semkitti(data.Dataset):
 
             # crop image
             image = image.crop((left, top, right, bottom))
+            depth=depth[]
             points_img = points_img[keep_idx]
             points_img[:, 0] -= top
             points_img[:, 1] -= left
