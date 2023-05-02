@@ -145,6 +145,12 @@ class point_image_dataset_semkitti(data.Dataset):
         depth = depth.astype(np.uint8)
         depth = Image.fromarray(depth)
         
+        
+        ##
+        image = image[:,:,:-1]
+        image = image.astype(np.uint8)
+        image = Image.fromarray(image)
+        ##   
 
         # print("*"*100)
         
