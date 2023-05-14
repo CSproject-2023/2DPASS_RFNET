@@ -9,6 +9,23 @@ from network.spvcnn import get_model as SPVCNN
 from network.base_model import LightningBaseModel
 from network.basic_block import ResNextFCN
 
+
+
+sys.path.append('/content/2DPASS_RFNET/RFNet/')
+from models.rfnet import RFNet_2DPass as RFNet
+from models.resnet.resnet_single_scale_single_attention import *
+
+def load_my_state_dict(model, state_dict):  # custom function to load model when not all dict elements
+    own_state = model.state_dict()
+    for name, param in state_dict.items():
+        if name not in own_state:
+            print('{} not in model_state'.format(name))
+            continue
+        else:
+            own_state[name].copy_(param)
+
+    return model
+
 class xModalKD(nn.Module):
     def __init__(self,config):
         super(xModalKD, self).__init__()
@@ -157,6 +174,15 @@ class get_model(LightningBaseModel):
                 config=config
             )
             self.fusion = xModalKD(config)
+
+            resnet = resnet18(pretrained=True, efficient=False, use_bn= True)
+            self.RFNet = RFNet(resnet, num_classes=20, use_bn=True)  
+            self.RFNet = torch.nn.DataParallel(model, device_ids=[0])
+            self.RFNet = model.cuda()
+            new_state_dict = torch.load('/content/drive/MyDrive/Graduation_Project/RGBD/model_best_citylostfound.pth')
+            self.RFNet = load_my_state_dict(model.module, new_state_dict['state_dict'])
+            self.RFNet.eval()
+
         else:
             print('Start vanilla training!')
 
@@ -168,5 +194,6 @@ class get_model(LightningBaseModel):
         if self.training and not self.baseline_only:
             data_dict = self.model_2d(data_dict)
             data_dict = self.fusion(data_dict)
+            self.RFNet(data_dict)
 
         return data_dict
