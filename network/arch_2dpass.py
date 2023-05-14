@@ -7,7 +7,7 @@ import torch.nn.functional as F
 from network.basic_block import Lovasz_loss
 from network.spvcnn import get_model as SPVCNN
 from network.base_model import LightningBaseModel
-from network.basic_block import ResNextFCN
+from network.basic_block import ResNetFCN
 
 import sys
 
@@ -168,7 +168,7 @@ class get_model(LightningBaseModel):
 
         self.model_3d = SPVCNN(config)
         if not self.baseline_only:
-            self.model_2d = ResNextFCN(
+            self.model_2d = ResNetFCN(
                 backbone=config.model_params.backbone_2d,
                 pretrained=config.model_params.pretrained2d,
                 config=config
@@ -177,10 +177,10 @@ class get_model(LightningBaseModel):
 
             resnet = resnet18(pretrained=True, efficient=False, use_bn= True)
             self.RFNet = RFNet(resnet, num_classes=20, use_bn=True)  
-            self.RFNet = torch.nn.DataParallel(model, device_ids=[0])
-            self.RFNet = model.cuda()
+            self.RFNet = torch.nn.DataParallel(self.RFNet, device_ids=[0])
+            self.RFNet = self.RFNet.cuda()
             new_state_dict = torch.load('/content/drive/MyDrive/Graduation_Project/RGBD/model_best_citylostfound.pth')
-            self.RFNet = load_my_state_dict(model.module, new_state_dict['state_dict'])
+            self.RFNet = load_my_state_dict(self.RFNet.module, new_state_dict['state_dict'])
             self.RFNet.eval()
 
         else:

@@ -33,6 +33,7 @@ class RFNet_2DPass(nn.Module):
         self.logits = _BNReluConv(self.backbone.num_features, self.num_classes, batch_norm=use_bn)
 
     def forward(self, data_dict):
+        data_dict['depth'] = data_dict['depth'][0].permute(2, 0, 1)
         x, additional = self.backbone(data_dict['img'], data_dict['depth'])
         logits = self.logits.forward(x)
         logits_upsample = upsample(logits, rgb_inputs.shape[2:])

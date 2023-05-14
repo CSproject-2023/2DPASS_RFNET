@@ -138,7 +138,8 @@ class point_image_dataset_semkitti(data.Dataset):
         image = data['img']
         depth=data['depth']
         
-        depth=np.reshape(depth, (370, 1226,1))
+    
+        depth=np.reshape(depth, (depth.shape[0], depth.shape[1],1))
         depth1=np.concatenate((depth, depth), axis=2)
         depth=np.concatenate((depth, depth1), axis=2)
         
@@ -147,9 +148,9 @@ class point_image_dataset_semkitti(data.Dataset):
         
         
         ##
-        image = image[:,:,:-1]
-        image = image.astype(np.uint8)
-        image = Image.fromarray(image)
+        # image = image[:,:,:-1]
+        # image = image.astype(np.uint8)
+        # image = Image.fromarray(image)
         ##   
 
         # print("*"*100)
@@ -263,7 +264,7 @@ class point_image_dataset_semkitti(data.Dataset):
         # print("image")
         # print(image.shape)
 
-        image=np.concatenate((image, depth), axis=2)
+        # image=np.concatenate((image, depth), axis=2)
         
 
         data_dict = {}
@@ -492,6 +493,8 @@ class point_image_dataset_nus(data.Dataset):
         data_dict['img_label'] = img_label
         data_dict['point2img_index'] = point2img_index
 
+        data_dict['depth'] = data['depth']
+
         return data_dict
 
 
@@ -516,6 +519,9 @@ def collate_fn_default(data):
     ref_xyz = [torch.from_numpy(d['ref_xyz']) for d in data]
     labels = [torch.from_numpy(d['point_label']) for d in data]
 
+
+    depth = [torch.from_numpy(d['depth']) for d in data]
+
     return {
         'points': torch.cat(points).float(),
         'ref_xyz': torch.cat(ref_xyz).float(),
@@ -530,4 +536,5 @@ def collate_fn_default(data):
         'img_indices': img_indices,
         'img_label': torch.cat(img_label, 0).squeeze(1).long(),
         'path': path,
+        'depth':depth,
     }

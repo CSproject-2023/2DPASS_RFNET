@@ -146,8 +146,8 @@ class SemanticKITTI(data.Dataset):
         disparity = stereo.compute(imageRR,imageLL)
         depth = 1/disparity
         
-        depth=np.reshape(depth, (370, 1226,1))
-        image=np.concatenate((imageL, depth), axis=2)
+        depth=np.reshape(depth, (depth.shape[0], depth.shape[1],1))
+        # image=np.concatenate((imageL, depth), axis=2)
         # print("#"*100)
         # print(image.shape)
 
