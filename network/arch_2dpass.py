@@ -9,7 +9,7 @@ from network.spvcnn import get_model as SPVCNN
 from network.base_model import LightningBaseModel
 from network.basic_block import ResNextFCN
 
-
+import sys
 
 sys.path.append('/content/2DPASS_RFNET/RFNet/')
 from models.rfnet import RFNet_2DPass as RFNet
