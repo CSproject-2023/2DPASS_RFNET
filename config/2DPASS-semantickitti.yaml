@@ -75,7 +75,7 @@ dataset_params:
     - 1168181
 
   train_data_loader:
-    data_path: "/content/drive/MyDrive/Graduation_Project/sementic_segmentation/sementicKitti/unzip/dataset/sequences/"
+    data_path: "/content/drive/MyDrive/Graduation_Project/sementic_segmentation/sementicKitti/unzip6/dataset/sequences/"
     batch_size: 1
     shuffle: True
     num_workers: 4
@@ -86,7 +86,7 @@ dataset_params:
     dropout_aug: True
 
   val_data_loader:
-    data_path: "/content/drive/MyDrive/Graduation_Project/sementic_segmentation/sementicKitti/unzip/dataset/sequences/"
+    data_path: "/content/drive/MyDrive/Graduation_Project/sementic_segmentation/sementicKitti/unzip6/dataset/sequences/"
     shuffle: False
     num_workers: 4
 
