@@ -93,6 +93,13 @@ class SemanticKITTI(data.Dataset):
         calib_out = {}
         calib_out['P2'] = calib_all['P2'].reshape(3, 4)  # 3x4 projection matrix for left camera
         calib_out['Tr'] = np.identity(4)  # 4x4 matrix
+        
+        ########
+        calib_all['Tr'] = np.array([4.276802385584e-04, -9.999672484946e-01, -8.084491683471e-03, -1.198459927713e-02 ,-7.210626507497e-03,
+         8.081198471645e-03 ,-9.999413164504e-01, -5.403984729748e-02 ,9.999738645903e-01 ,
+         4.859485810390e-04 ,-7.206933692422e-03 ,-2.921968648686e-01])
+        ##########
+
         calib_out['Tr'][:3, :4] = calib_all['Tr'].reshape(3, 4)
 
         return calib_out
