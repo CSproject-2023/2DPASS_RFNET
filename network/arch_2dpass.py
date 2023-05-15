@@ -11,7 +11,7 @@ from network.basic_block import ResNetFCN
 
 import sys
 
-sys.path.append('/content/2DPASS_RFNET/RFNet/')
+sys.path.append('/content/2DPASS_RFNET/RFNet')
 from models.rfnet import RFNet_2DPass as RFNet
 from models.resnet.resnet_single_scale_single_attention import *
 
@@ -192,8 +192,9 @@ class get_model(LightningBaseModel):
 
         # training with 2D network
         if self.training and not self.baseline_only:
-            data_dict = self.model_2d(data_dict)
+            # data_dict = self.model_2d(data_dict)
+            data_dict = self.RFNet(data_dict)
+
             data_dict = self.fusion(data_dict)
-            self.RFNet(data_dict)
 
         return data_dict
