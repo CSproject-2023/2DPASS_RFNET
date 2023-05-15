@@ -11,7 +11,7 @@ from network.basic_block import ResNetFCN
 
 import sys
 
-sys.path.append('/content/2DPASS_RFNET/RFNet')
+sys.path.append('/content/2DPASS_RFNet/RFNet')
 from models.rfnet import RFNet_2DPass as RFNet
 from models.resnet.resnet_single_scale_single_attention import *
 
