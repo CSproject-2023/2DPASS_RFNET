@@ -36,7 +36,7 @@ class RFNet_2DPass(nn.Module):
         data_dict['depth'] = data_dict['depth'][0].permute(2, 0, 1)
         x, additional = self.backbone(data_dict['img'], data_dict['depth'])
         logits = self.logits.forward(x)
-        logits_upsample = upsample(logits, rgb_inputs.shape[2:])
+        logits_upsample = upsample(logits, data_dict['img'].shape[2:])
         return logits_upsample
 
 
